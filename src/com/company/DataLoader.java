@@ -7,11 +7,13 @@ import java.io.IOException;
 
 public class DataLoader {
 
-    public static Matrix loadImageSet(String fileName) {
+    public static Matrix[] loadImageSet(String fileName) {
         BufferedReader br_1 = null;
         BufferedReader br_2, br_3;
-        double[][] result_pom = new double[1][1];
+        //double[][] result_pom = new double[1][1];
         String line = "";
+
+        Matrix[] images;
 
         int lines_num = 0;
         int pixels_num = 0;
@@ -26,15 +28,20 @@ public class DataLoader {
             String[] temp = line.split(",");
             pixels_num = temp.length;
 
-            double[][] result = new double[lines_num][pixels_num];
+            //double[][] result = new double[lines_num][pixels_num];
+            images = new Matrix[lines_num];
 
             br_1 = new BufferedReader(new FileReader(fileName));
             int counter = 0;
             while ((line = br_1.readLine()) != null) {
+                //Matrix image = new Matrix(28, 28);
                 String[] temp2 = line.split(",");
+                double[] result = new double[pixels_num];
                 for(int i = 0; i < temp2.length; i++){
-                    result[counter][i] = Double.parseDouble(temp2[i]) / 255d;
+                    result[i] = Double.parseDouble(temp2[i]) / 255d;
                 }
+                Matrix image = new Matrix(result, pixels_num, 1);
+                images[counter] = image;
                 counter++;
             }
 
@@ -42,7 +49,7 @@ public class DataLoader {
             br_2.close();
             br_3.close();
 
-            return new Matrix(result, lines_num, pixels_num);
+            return images;
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -57,36 +64,42 @@ public class DataLoader {
                 }
         }
 
-        return new Matrix(result_pom, 1, 1);
+        return new Matrix[lines_num];
     }
 
-    public static Matrix loadLabels(String fileName){
+    public static Matrix[] loadLabels(String fileName){
         BufferedReader br_1 = null;
         BufferedReader br_2 = null;
         String line = "";
-        double[][] result_pom = new double[1][10];
+        //double[][] result_pom = new double[1][10];
 
         int lines_num = 0;
         int counter = 0;
+
+        Matrix[] labels;
 
         try{
             br_2 = new BufferedReader(new FileReader(fileName));
             while((br_2.readLine()) != null)
                 lines_num++;
 
-            double[][] result = new double[lines_num][10];
+
+            labels = new Matrix[lines_num];
+
+            //double[][] result = new double[lines_num][10];
 
             br_1 = new BufferedReader(new FileReader(fileName));
             while((line = br_1.readLine()) != null){
+
                 String[] temp2 = line.split(",");
-                result[counter] = getResultArray(Integer.parseInt(temp2[0]));
+                labels[counter] = new Matrix(getResultArray(Integer.parseInt(temp2[0])), 10, 1);
                 counter++;
             }
 
             br_1.close();
             br_2.close();
 
-            return new Matrix(result, lines_num, 10);
+            return labels;
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -101,7 +114,7 @@ public class DataLoader {
                 }
         }
 
-        return new Matrix(result_pom, 1, 1);
+        return new Matrix[lines_num];
     }
 
     public static double[] getResultArray(int n){

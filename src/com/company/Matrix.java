@@ -1,5 +1,7 @@
 package com.company;
 
+import com.company.MathFunctions.Function_Pom;
+
 public class Matrix {
     private double data[];
     private int num_rows,num_cols;
@@ -92,18 +94,26 @@ public class Matrix {
                 dest.setValue(i, j, a.getValue(i, j) + b.getValue(i , j));
     }
 
-    /*Substract*/
+    public void addSelf(Matrix m) {
+        add(this, m, this);
+    }
 
-    public Matrix substract(Matrix m) {
+    /*Subtract*/
+
+    public Matrix subtract(Matrix m) {
         Matrix out = new Matrix(num_rows,num_cols);
-        substract (this, m, out);
+        subtract (this, m, out);
 
         return out;
     }
 
-    public static void substract(Matrix a, Matrix b, Matrix dest) {
+    public void subtractSelf(Matrix m) {
+        subtract(this, m, this);
+    }
+
+    public static void subtract(Matrix a, Matrix b, Matrix dest) {
         if (a.getNum_rows() != b.getNum_rows() || a.getNum_cols()!=b.getNum_cols() || a.getNum_rows()!=dest.getNum_rows() || a.getNum_cols()!=dest.getNum_cols())
-            throw new RuntimeException("Matrix substract: Matrix size mismatch");
+            throw new RuntimeException("Matrix subtract: Matrix size mismatch");
 
         for (int i = 0; i < a.getNum_rows(); i++)
             for (int j = 0; j < a.getNum_cols(); j++ )
@@ -127,6 +137,52 @@ public class Matrix {
         }
 
         return sum;
+    }
+
+    public Matrix multiplyTransposeSelf(Matrix m) {
+        Matrix newMatrix = new Matrix(num_cols, m.getNum_cols());
+        multiplyTransposeA(this, m, newMatrix);
+
+        return newMatrix;
+    }
+
+    public static void multiplyTransposeA(Matrix a, Matrix b, Matrix dest) {
+        if(a.getNum_rows() != b.getNum_rows() || dest.getNum_rows() != a.getNum_cols() || dest.getNum_cols() != b.getNum_cols())
+            throw new RuntimeException("Matrix size mismatch");
+
+        for(int i = 0; i < a.getNum_cols(); i++) {
+            for(int j = 0; j < b.getNum_cols(); j++) {
+                double total = 0;
+                for (int k = 0; k < a.getNum_rows(); k++) {
+                    total += a.getValue(k, i) * b.getValue(k, j);
+                }
+                dest.setValue(i, j, total);
+            }
+        }
+    }
+
+
+    // Multiply this matrix with the transpose of m
+    public Matrix multiplyTransposeM(Matrix m) {
+        Matrix newMatrix = new Matrix(num_rows, m.getNum_rows());
+        multiplyTransposeB(this, m, newMatrix);
+
+        return newMatrix;
+    }
+
+    public static void multiplyTransposeB(Matrix a, Matrix b, Matrix dest) {
+        if(a.getNum_cols() != b.getNum_cols() || dest.getNum_rows() != a.getNum_rows() || dest.getNum_cols() != b.getNum_rows())
+            throw new RuntimeException("Matrix size mismatch");
+
+        for(int i = 0; i < a.getNum_rows(); i++) {
+            for(int j = 0; j < b.getNum_rows(); j++) {
+                double total = 0;
+                for (int k = 0; k < a.getNum_cols(); k++) {
+                    total += a.getValue(i, k) * b.getValue(j, k);
+                }
+                dest.setValue(i, j, total);
+            }
+        }
     }
 
     /*Scalar multiplication*/
@@ -231,6 +287,24 @@ public class Matrix {
         }
 
         return true;
+    }
+
+    public Matrix vectorize(Function_Pom f) {
+        Matrix newMatrix = new Matrix(num_rows, num_cols);
+        vectorize(this, f, newMatrix);
+
+        return newMatrix;
+    }
+
+    public static void vectorize(Matrix m, Function_Pom f, Matrix dest) {
+        if(m.getNum_rows() != dest.getNum_rows() || m.getNum_cols() != dest.getNum_cols())
+            throw new RuntimeException("Matrix size mismatch");
+
+        for(int i = 0; i < m.getNum_rows(); i++){
+            for(int j = 0; j < m.getNum_cols(); j++){
+                dest.setValue(i, j, f.f(m.getValue(i, j)));
+            }
+        }
     }
 
 }
