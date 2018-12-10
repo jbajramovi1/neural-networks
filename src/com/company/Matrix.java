@@ -1,14 +1,11 @@
 package com.company;
 
 public class Matrix {
-    private double data[][];
+    private double data[];
     private int num_rows,num_cols;
 
-    public Matrix(double[][] data, int num_rows, int num_cols){
-        if (data.length != num_rows) throw new RuntimeException("Invalid matrix sizes!");
-        for (int i = 0; i <data.length; i ++) {
-            if (data[i].length != num_cols) throw new RuntimeException("Invalid matrix sizes!");
-        }
+    public Matrix(double[] data, int num_rows, int num_cols){
+        if (data.length != num_rows * num_cols) throw new RuntimeException("Invalid matrix sizes!");
 
         this.data = data;
         this.num_rows = num_rows;
@@ -16,11 +13,11 @@ public class Matrix {
     }
 
     public Matrix(int num_rows, int num_cols) {
-        this.data = new double[num_rows][num_cols];
+        this.data = new double[num_rows*num_cols];
         this.num_rows = num_rows;
         this.num_cols = num_cols;
     }
-    public double[][] getData() {
+    public double[] getData() {
         return data;
     }
 
@@ -38,14 +35,14 @@ public class Matrix {
 
     public void setValue(int row, int column, double value) {
         if (withinRange(row, column))
-            data[row][column] = value;
+            data[row*num_cols + column] = value;
         else
             throw new RuntimeException("Out of bound exception");
     }
 
     public double getValue(int row, int column) {
         if (withinRange(row, column))
-            return data[row][column] ;
+            return data[row*num_cols + column] ;
         else
             throw new RuntimeException("Out of bound exception");
     }
