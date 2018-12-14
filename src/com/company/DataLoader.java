@@ -40,7 +40,10 @@ public class DataLoader {
                 for(int i = 0; i < temp2.length; i++){
                     result[i] = Double.parseDouble(temp2[i]) / 255d;
                 }
-                Matrix image = new Matrix(result, pixels_num, 1);
+
+                double[] normalized = normalizeFeatures(result);
+                Matrix image = new Matrix(normalized, pixels_num, 1);
+
                 images[counter] = image;
                 counter++;
             }
@@ -127,5 +130,30 @@ public class DataLoader {
         }
 
         return result;
+    }
+
+    private static double[] normalizeFeatures(double[] pixels) {
+        double min = Double.MAX_VALUE;
+        double max = Double.MIN_VALUE;
+
+        double sum = 0;
+
+        for (double pixel: pixels) {
+            sum = sum + pixel;
+            if (pixel > max) {
+                max = pixel;
+            }
+            if (pixel < min) {
+                min = pixel;
+            }
+        }
+        double mean = sum / pixels.length;
+
+        double[] pixelsNorm = new double[pixels.length];
+        for (int i = 0; i< pixels.length; i++) {
+            pixelsNorm[i] = (pixels[i] - mean) / (max - min);
+        }
+
+        return pixelsNorm;
     }
 }
