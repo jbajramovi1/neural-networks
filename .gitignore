@@ -24,3 +24,7 @@ hs_err_pid*
 
 # Idea folder
 .idea/*
+
+out/*
+
+src/com/company/MNIST_DATA/*
