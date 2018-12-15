@@ -2,35 +2,29 @@ package com.company;
 
 
 import com.company.MathFunctions.ActivationFunction;
-import com.company.MathFunctions.CostFunction;
 
 import java.io.FileWriter;
 import java.util.Random;
 
 public class Network {
-
-    private static final int epochs= 10;
-    private static final int batchsize = 10;
     private static final double learningRate = 0.05;
     private static final double regularizationLambda = 5.0;
     private static final double  momentum = 0.3;
-    private static final CostFunction costFunction = CostFunction.CROSS_ENTROPY;
     private static final ActivationFunction activationFunction = ActivationFunction.SIGMOID;
 
     private int num_of_layers;
-    private int[] sizes;
     private Matrix[] biases;
     private Matrix[] weights;
     private Matrix[] velocities;
 
     public Network(int[] sizes){
         this.num_of_layers = sizes.length;
-        this.sizes = sizes;
         this.biases = new Matrix[num_of_layers - 1];
         this.weights = new Matrix[num_of_layers - 1];
         this.velocities = new Matrix[num_of_layers - 1];
 
         Random r = new Random();
+
         for (int i = 0; i < num_of_layers - 1; i++) {
             biases[i] = new Matrix(sizes[i+1], 1);
             weights[i] = new Matrix(sizes[i+1], sizes[i]);
@@ -39,9 +33,8 @@ public class Network {
             for (int j = 1; j < sizes[i+1]; j++) {
                 biases[i].setValue(j, 0, r.nextGaussian());
 
-                for (int k = 1; k < sizes[i]; k++) {
+                for (int k = 1; k < sizes[i]; k++)
                     weights[i].setValue(j, k, r.nextGaussian()/Math.sqrt(sizes[i]));
-                }
             }
         }
     }
@@ -62,7 +55,7 @@ public class Network {
 
         for (int j = 0; j < dataset.length; j++) {
             Matrix result = evaluate(dataset[j]);
-            roundUpMax(result);
+            getPrediction(result);
 
             if (result.equals(expected_results[j]))
                 correct_num++;
@@ -78,16 +71,19 @@ public class Network {
 
     public void evaluate_dataset(Matrix[] dataset, Matrix[] expected_results,String fileName){
         int correct_num = 0;
+
         try {
             FileWriter fileWriter = null;
             fileWriter = new FileWriter((fileName));
 
             for (int j = 0; j < dataset.length; j++) {
                 Matrix result = evaluate(dataset[j]);
-                roundUpMax(result);
+                getPrediction(result);
                 int result_int = convert_to_int(result);
+
                 fileWriter.append(String.valueOf(result_int));
                 fileWriter.append("\n");
+
                 if (result.equals(expected_results[j]))
                     correct_num++;
             }
@@ -96,22 +92,23 @@ public class Network {
             System.out.println("CSV error");
         }
 
-        System.out.println("Accuracy ( " + fileName + "): " + (correct_num * 100.0 / dataset.length) + "%");
+        System.out.println("Accuracy (" + fileName + "): " + (correct_num * 100.0 / dataset.length) + "%");
     }
 
     public int convert_to_int(Matrix input) {
         double[] input_array = input.getData();
-        for (int i = 0; i < input_array.length; i++) {
-            if (input_array[i] == 1){
+
+        for (int i = 0; i < input_array.length; i++)
+            if (input_array[i] == 1)
                 return i;
-            }
-        }
+
         return -1;
     }
 
-    public void roundUpMax(Matrix m) {
+    public void getPrediction(Matrix m) {
         double max = Double.NEGATIVE_INFINITY;
         int[] maxIndex = new int[] {0, 0};
+
         for (int i = 0; i < m.getNum_rows(); i++) {
             for (int j = 0; j < m.getNum_cols(); j++) {
                 if (m.getValue(i, j) > max) {
@@ -127,9 +124,8 @@ public class Network {
         }
     }
 
-
     public void train(Matrix[] trainingData, Matrix[] trainingResults, Matrix[] testData, Matrix[] testResults) {
-        for (int i = 0; i < epochs; i++) {
+        for (int i = 0; i < 10; i++) {
             int length = trainingData.length;
 
             Matrix[] gradientWeights = new Matrix[num_of_layers - 1];
@@ -141,17 +137,15 @@ public class Network {
             }
 
             for (int j = 0; j < trainingData.length; j++) {
-                Matrix[][] deltaGradients = backpropagate(trainingData[j], trainingResults[j]);
+                Matrix[][] deltaGradients = backpropagation(trainingData[j], trainingResults[j]);
 
                 for (int k = 0; k < num_of_layers - 1; k++) {
                     gradientWeights[k].addSelf(deltaGradients[0][k]);
                     gradientBiases[k].addSelf(deltaGradients[1][k]);
                 }
 
-                if (j > 0 && j % batchsize == 0 || j == trainingData.length - 1) {
-
+                if (j > 0 && j % 5.0 == 0 || j == trainingData.length - 1) {
                     for (int k = 0; k < num_of_layers - 1; k++) {
-
                         gradientWeights[k].multiplySelf(learningRate);
                         velocities[k].multiplySelf(momentum);
                         velocities[k].subtractSelf(gradientWeights[k]);
@@ -167,18 +161,15 @@ public class Network {
                 }
             }
 
-
-            if (evaluate_epoch(testData,testResults) == 1){
+            if (evaluate_epoch(testData,testResults) == 1)
                 break;
-            }
-
         }
 
         evaluate_dataset(trainingData,trainingResults, "trainPredictions.csv");
         evaluate_dataset(testData,testResults,"actualTestPredictions.csv");
     }
 
-    public Matrix[][] backpropagate(Matrix trainingData, Matrix trainingResult) {
+    public Matrix[][] backpropagation(Matrix trainingData, Matrix trainingResult) {
         Matrix[] deltaGradientWeights = new Matrix[num_of_layers - 1];
         Matrix[] deltaGradientBiases = new Matrix[num_of_layers - 1];
         Matrix[] zs = new Matrix[num_of_layers - 1];
@@ -195,7 +186,7 @@ public class Network {
             activations[i + 1] = previousActivation;
         }
 
-        Matrix error = costFunction.derivative(activations[activations.length - 1], trainingResult, zs[zs.length - 1], activationFunction);
+        Matrix error = activations[activations.length - 1].subtract(trainingResult);
         deltaGradientBiases[deltaGradientBiases.length - 1] = error;
         deltaGradientWeights[deltaGradientWeights.length - 1] = error.multiplyTransposeM(activations[activations.length - 2]);
 

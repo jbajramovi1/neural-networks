@@ -10,7 +10,6 @@ public class DataLoader {
     public static Matrix[] loadImageSet(String fileName) {
         BufferedReader br_1 = null;
         BufferedReader br_2, br_3;
-        //double[][] result_pom = new double[1][1];
         String line = "";
 
         Matrix[] images;
@@ -28,18 +27,16 @@ public class DataLoader {
             String[] temp = line.split(",");
             pixels_num = temp.length;
 
-            //double[][] result = new double[lines_num][pixels_num];
             images = new Matrix[lines_num];
 
             br_1 = new BufferedReader(new FileReader(fileName));
             int counter = 0;
             while ((line = br_1.readLine()) != null) {
-                //Matrix image = new Matrix(28, 28);
                 String[] temp2 = line.split(",");
                 double[] result = new double[pixels_num];
-                for(int i = 0; i < temp2.length; i++){
-                    result[i] = Double.parseDouble(temp2[i]) / 255d;
-                }
+
+                for(int i = 0; i < temp2.length; i++)
+                    result[i] = Double.parseDouble(temp2[i]);
 
                 double[] normalized = normalizeFeatures(result);
                 Matrix image = new Matrix(normalized, pixels_num, 1);
@@ -72,9 +69,8 @@ public class DataLoader {
 
     public static Matrix[] loadLabels(String fileName){
         BufferedReader br_1 = null;
-        BufferedReader br_2 = null;
+        BufferedReader br_2;
         String line = "";
-        //double[][] result_pom = new double[1][10];
 
         int lines_num = 0;
         int counter = 0;
@@ -86,16 +82,10 @@ public class DataLoader {
             while((br_2.readLine()) != null)
                 lines_num++;
 
-
             labels = new Matrix[lines_num];
-
-            //double[][] result = new double[lines_num][10];
-
             br_1 = new BufferedReader(new FileReader(fileName));
             while((line = br_1.readLine()) != null){
-
-                String[] temp2 = line.split(",");
-                labels[counter] = new Matrix(getResultArray(Integer.parseInt(temp2[0])), 10, 1);
+                labels[counter] = new Matrix(getResultArray(Integer.parseInt(line)), 10, 1);
                 counter++;
             }
 
@@ -140,19 +130,19 @@ public class DataLoader {
 
         for (double pixel: pixels) {
             sum = sum + pixel;
-            if (pixel > max) {
-                max = pixel;
-            }
-            if (pixel < min) {
-                min = pixel;
-            }
-        }
-        double mean = sum / pixels.length;
 
-        double[] pixelsNorm = new double[pixels.length];
-        for (int i = 0; i< pixels.length; i++) {
-            pixelsNorm[i] = (pixels[i] - mean) / (max - min);
+            if (pixel > max)
+                max = pixel;
+
+            if (pixel < min)
+                min = pixel;
         }
+
+        double mean = sum / pixels.length;
+        double[] pixelsNorm = new double[pixels.length];
+
+        for (int i = 0; i< pixels.length; i++)
+            pixelsNorm[i] = (pixels[i] - mean) / (max - min);
 
         return pixelsNorm;
     }
