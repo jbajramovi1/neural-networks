@@ -1,0 +1,9 @@
+#!/bin/sh
+
+dir=out/artifacts/neural_networks_jar
+
+jar_name=neural-networks.jar
+
+java -jar $dir/$jar_name
+
+
