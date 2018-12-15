@@ -68,8 +68,6 @@ public class Network {
                 correct_num++;
         }
 
-        System.out.println("Accuracy: " + (correct_num * 100.0 / dataset.length) + "%");
-
         if ((correct_num * 1.0 / dataset.length)>0.96){ ;
             return  1;
         }

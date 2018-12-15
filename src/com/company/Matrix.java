@@ -55,26 +55,6 @@ public class Matrix {
                 setValue(i,j,value);
     }
 
-    /*Transpose*/
-
-    public Matrix transpose() {
-
-        Matrix transposed = new Matrix(num_cols, num_rows);
-        transpose(this, transposed);
-
-        return transposed;
-    }
-
-    public static void transpose(Matrix m, Matrix dest) {
-        if (m.getNum_rows() != m.getNum_cols())
-            throw new RuntimeException("Matrix transpose: Matrix size mismatch");
-
-        for(int i = 0; i < m.getNum_rows(); i++) {
-            for(int j = 0; j < m.getNum_cols(); j++) {
-                dest.setValue(j, i, m.getValue(i, j));
-            }
-        }
-    }
 
     /*Add*/
 
@@ -122,9 +102,6 @@ public class Matrix {
 
     /*Multiplicate*/
 
-    public double getMultipliedEntry(Matrix m, int row, int column) {
-        return getMultipliedEntry(this, m, row, column);
-    }
 
     public static double getMultipliedEntry(Matrix a, Matrix b, int row, int column) {
         if(!(row < a.getNum_rows() && row >= 0 && column < b.getNum_cols() && column >= 0))
@@ -163,6 +140,7 @@ public class Matrix {
 
 
     // Multiply this matrix with the transpose of m
+
     public Matrix multiplyTransposeM(Matrix m) {
         Matrix newMatrix = new Matrix(num_rows, m.getNum_rows());
         multiplyTransposeB(this, m, newMatrix);
@@ -186,13 +164,6 @@ public class Matrix {
     }
 
     /*Scalar multiplication*/
-
-    public Matrix multiply(double scalar) {
-        Matrix out = new Matrix(num_rows,num_cols);
-        multiply(this, scalar, out);
-
-        return out;
-    }
 
     public void multiplySelf(double scalar) {
         multiply(this, scalar, this);
@@ -229,13 +200,6 @@ public class Matrix {
 
     /*Hadamard product*/
 
-    public Matrix hadamardProduct(Matrix m) {
-        Matrix out = new Matrix(num_rows, num_cols);
-        hadamardProduct(this, m, out);
-
-        return out;
-    }
-
     public void hadamardProductSelf(Matrix m) {
         hadamardProduct(this, m, this);
     }
@@ -251,29 +215,6 @@ public class Matrix {
         }
     }
 
-    /*Hadamard division*/
-
-    public Matrix hadamardDivision(Matrix m) {
-        Matrix out = new Matrix(num_rows, num_cols);
-        hadamardDivision(this, m, out);
-
-        return out;
-    }
-
-    public void hadamardDivisionSelf(Matrix m) {
-        hadamardDivision(this, m, this);
-    }
-
-    public static void hadamardDivision(Matrix a, Matrix b, Matrix dest) {
-        if(a.getNum_rows() != b.getNum_rows() || a.getNum_cols() != b.getNum_cols() || a.getNum_rows() != dest.getNum_rows() || a.getNum_cols() != dest.getNum_cols())
-            throw new RuntimeException("Matrix Hadamard division: Matrix size mismatch");
-
-        for(int i = 0; i < a.getNum_rows(); i++) {
-            for(int j = 0; j < a.getNum_cols(); j++) {
-                dest.setValue(i, j, a.getValue(i, j) / b.getValue(i, j));
-            }
-        }
-    }
 
     public boolean equals(Matrix m) {
         if(num_rows != m.getNum_rows() || num_cols != m.getNum_cols())
