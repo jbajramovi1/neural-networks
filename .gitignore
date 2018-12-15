@@ -26,4 +26,4 @@ hs_err_pid*
 
 src/com/company/MNIST_DATA/*
 
-out/*
+out/production/neural-networks/com/company/MNIST_DATA/*
